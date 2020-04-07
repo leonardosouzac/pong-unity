@@ -1,0 +1,65 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BallControll : MonoBehaviour
+{
+    public float ballSpeed = 100f;
+
+    IEnumerator WaitForBall()
+    {
+        yield return new WaitForSeconds(2f);
+        GoBall();
+    }
+
+    void Start()
+    {
+        StartCoroutine(WaitForBall());
+    }
+    void Update()
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        float xVel = rb.velocity.x;
+        Debug.Log("Velocity" + xVel);
+        if (xVel < 18f && xVel > -18 && xVel != 0)
+        {
+            if (xVel > 0)
+            {
+                rb.velocity = new Vector2(20, rb.velocity.y);
+            }
+            else
+            {
+                rb.velocity = new Vector2(-20, rb.velocity.y);
+            }
+        }
+    }
+    void OnCollisionEnter2D(Collision2D colInfo)
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (colInfo.collider.tag == "Player")
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y / 2 + colInfo.rigidbody.velocity.y / 3);
+            Debug.Log("It's working!");
+            GetComponent<AudioSource>().pitch = Random.Range(0.8f, 1.2f);
+            GetComponent<AudioSource>().Play();
+        }
+    }
+    void GoBall()
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        int rnd = Random.Range(0, 2);
+        if (rnd <= 0.5)
+            rb.AddForce(new Vector2(80, 10));
+        else
+            rb.AddForce(new Vector2(-80, -10));
+    }
+
+    public void ResetBall()
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = new Vector2(0, 0);
+        transform.position = new Vector2(0, 0);
+        Invoke("GoBall", 1);
+
+    }
+}
